@@ -11,5 +11,5 @@
 # Software Architecture
 
 @startuml
-Jpeg <| PayloadExtraction
+Jpeg <|-- PayloadExtraction
 @enduml
