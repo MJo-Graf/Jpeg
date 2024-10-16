@@ -10,9 +10,12 @@ string(TOLOWER ${PROJECT_NAME} LIBRARYNAME)
 string(TOLOWER ${PROJECT_NAME}_cli EXECUTABLE_NAME)
 
 add_library(${LIBRARYNAME} SHARED)
-target_sources(${LIBRARYNAME} PRIVATE ${SRC_DIR}/colorspaceconversion/colorspaceconversion.cpp)
+target_sources(${LIBRARYNAME} PRIVATE ${SRC_DIR}/payloadextraction/payload_extraction.cpp
+       			              ${SRC_DIR}/colorspaceconversion/colorspace_conversion.cpp
+				      ${SRC_DIR}/jpeg/jpeg.cpp)
+
 target_include_directories(${LIBRARYNAME} PUBLIC ${INC_DIR})
 
 add_executable(${EXECUTABLE_NAME})
-target_sources(${EXECUTABLE_NAME} PRIVATE ${SRC_DIR}/clitool/jpeg.cpp)
+target_sources(${EXECUTABLE_NAME} PRIVATE ${SRC_DIR}/clitool/jpeg_cli.cpp)
 target_include_directories(${EXECUTABLE_NAME} PRIVATE ${INC_DIR})
