@@ -6,16 +6,17 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 set(SRC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/src)
 set(INC_DIR ${CMAKE_CURRENT_SOURCE_DIR}/include)
 
-string(TOLOWER ${PROJECT_NAME} LIBRARYNAME)
-string(TOLOWER ${PROJECT_NAME}_cli EXECUTABLE_NAME)
+# ADD LIBRARY
+string(TOLOWER ${PROJECT_NAME} LIBRARY_NAME)
+add_library(${LIBRARY_NAME} SHARED)
+target_include_directories(${LIBRARY_NAME} PUBLIC ${INC_DIR})
+target_sources(${LIBRARY_NAME} PRIVATE
+	${SRC_DIR}/colorspaceconversion/colorspace_conversion.cpp
+	${SRC_DIR}/entropyencoding/huffman.cpp
+	${SRC_DIR}/payloadextraction/payload_extraction.cpp)
 
-add_library(${LIBRARYNAME} SHARED)
-target_sources(${LIBRARYNAME} PRIVATE ${SRC_DIR}/payloadextraction/payload_extraction.cpp
-       			              ${SRC_DIR}/colorspaceconversion/colorspace_conversion.cpp
-				      ${SRC_DIR}/jpeg/jpeg.cpp)
-
-target_include_directories(${LIBRARYNAME} PUBLIC ${INC_DIR})
-
-add_executable(${EXECUTABLE_NAME})
-target_sources(${EXECUTABLE_NAME} PRIVATE ${SRC_DIR}/clitool/jpeg_cli.cpp)
-target_include_directories(${EXECUTABLE_NAME} PRIVATE ${INC_DIR})
+# ADD EXECUTABLE(S)
+add_executable(huffman_cli)
+target_include_directories(huffman_cli PRIVATE ${INC_DIR})
+target_sources(huffman_cli PRIVATE
+	      ${SRC_DIR}/clitools/huffman_cli.cpp)

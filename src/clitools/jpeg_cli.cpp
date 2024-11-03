@@ -1,4 +1,4 @@
-#include "clitool/jpeg_cli.h"
+#include "clitools/jpeg_cli.h"
 
 std::string exec_name;
 
