@@ -20,3 +20,4 @@ add_executable(huffman_cli)
 target_include_directories(huffman_cli PRIVATE ${INC_DIR})
 target_sources(huffman_cli PRIVATE
 	      ${SRC_DIR}/clitools/huffman_cli.cpp)
+      target_link_libraries(huffman_cli PRIVATE ${LIBRARY_NAME})

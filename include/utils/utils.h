@@ -1,10 +1,19 @@
 #ifndef UTILS_H
 #define UTILS_H
 #include<array>
+#include <cstdint>
 #include<vector>
+#include<array>
+#include <numeric>
 #include<cstring>
-using BITS = std::array<std::size_t,16>;
+#include<map>
+using BITS = std::array<char,16>;
 using HUFFVAL = std::vector<char>;
+using HUFFSIZE = std::vector<std::uint16_t>;
+using HUFFCODE = std::vector<std::uint16_t>;
+using EHUFCO = std::map<char,std::uint16_t>;
+using EHUFSI = std::map<char,std::uint16_t>;
+
 
 char setBit(char val,char offs){
     return val|(1<<offs);
