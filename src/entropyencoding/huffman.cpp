@@ -13,7 +13,6 @@ bool Huffman::validBitsAndHuffval(){
  * https://www.w3.org/Graphics/JPEG/itu-t81.pdf (Section C.2).
  * @return HUFFSIZE vector.
  */
-#include<iostream>
 void Huffman::computeHuffsize(){
     huffsize_.clear();
     std::size_t i{0},j{1};
@@ -47,18 +46,6 @@ void Huffman::computeHuffcode(){
 	while(!(huffsize_[huffcode_.size()]==si));
     }
 
-//    std::cout <<"huffcodes:"<<std::endl;
-//    for(std::size_t i=0;i< huffcode_.size();++i){
-//        for(std::int16_t j=15;j>=0;--j){
-//	    if((1<<j)&huffcode_[i]){
-//	        std::cout<<"1";
-//	    }else{
-//	        std::cout<<"0";
-//	    }
-//	}	
-//	std::cout<<std::endl;
-//    }
-//    std::cout <<".....:"<<std::endl;
 }
 
 void Huffman::reorder(){

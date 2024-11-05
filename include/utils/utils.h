@@ -2,18 +2,25 @@
 #define UTILS_H
 #include<array>
 #include <cstdint>
+#include <type_traits>
 #include<vector>
 #include<array>
 #include <numeric>
 #include<cstring>
 #include<map>
+
+
+// Type aliases
 using BITS = std::array<char,16>;
-using HUFFVAL = std::vector<char>;
+using HUFFVAL = std::vector<std::uint16_t>;
 using HUFFSIZE = std::vector<std::uint16_t>;
 using HUFFCODE = std::vector<std::uint16_t>;
 using EHUFCO = std::map<char,std::uint16_t>;
 using EHUFSI = std::map<char,std::uint16_t>;
 
+// Concepts
+template<typename T>
+concept Numeric = (std::is_arithmetic_v<T>);
 
 char setBit(char val,char offs){
     return val|(1<<offs);

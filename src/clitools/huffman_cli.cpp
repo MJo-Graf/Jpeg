@@ -73,14 +73,6 @@ HUFFVAL createHuffval(std::string f){
     return huffval;
 }
 
-template<typename T>
-void printCodeTable(T code_sizes,T code_values){
-    if((code_sizes.size())!=code_values.size()){
-	 std::cerr <<"Error printing code table, size!=values"<<std::endl;
-	 std::cerr<<"code_sizes: "<<code_sizes.size()<< " code_values: "<<code_values.size()<<std::endl;
-         exit(EXIT_FAILURE);
-    }
-}
 
 
 int main(int argc,char*argv[]){
@@ -93,13 +85,9 @@ int main(int argc,char*argv[]){
         switch(c){
 	    case 'b':
 		bits = createBits(optarg);
-		std::cout <<"bits:"<<std::endl;
-		for(auto it:bits){std::cout << +it <<std::endl;};
 	        break;
 	    case 'i':
-		std::cout <<"huffval:"<<std::endl;
 		huffval = createHuffval(optarg);
-		for(auto it:huffval){std::cout << static_cast<int>(it) <<std::endl;};
 	        break;
 	    case 'h':
 		usage();
@@ -117,14 +105,7 @@ int main(int argc,char*argv[]){
     huffman.computeHuffsize();
     huffman.computeHuffcode();
     huffman.reorder();
-    for(auto&it:huffman.getHuffsize()){
-	    std::cout << "huffsize: " <<it<<std::endl;
-    }
-    printCodeTable(huffman.getEhufsi(),huffman.getEhufco());
     Logger logger;
-    logger.logInfo("hello","ok");
-    logger.logError("hello","ok");
-    logger.logDebug("hello","ok");
-    logger.logHuffmanTable(huffman.getEhufsi(),huffman.getEhufco());
+    logger.logHuffmanTable(huffman.getEhufsi(),huffman.getEhufco(),huffval);
 
 }

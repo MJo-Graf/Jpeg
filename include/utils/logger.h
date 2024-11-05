@@ -3,8 +3,22 @@
 #include"utils/utils.h"
 #include<iostream>
 #include<iomanip>
+#include <type_traits>
+#include<concepts>
 
-constexpr std::size_t INTROWIDTH{10};
+
+
+template<Numeric T>
+void printBits(T bits,std::size_t num_bits){
+	//std::cout <<"bits="<<bits<<" num_bits="<<num_bits<<std::endl;
+    for(std::int16_t k=num_bits-1;k>=0;--k){
+        if((1<<k)&bits){
+	    std::cout<<"1";
+	}else{
+	    std::cout<<"0";
+	}		
+    }
+}
 
 class Logger{
     public:
@@ -27,7 +41,7 @@ class Logger{
         log(args...);
     }
 
-    void logHuffmanTable(EHUFSI&&ehufsi,EHUFCO&&ehufco){
+    void logHuffmanTable(EHUFSI&&ehufsi,EHUFCO&&ehufco,HUFFVAL&huffval){
 	auto adapt_stringsize=[](std::string&s){
 	    if((s.size()%2)!=0){
 	        s.append(" ");
@@ -71,13 +85,8 @@ class Logger{
 		setnumcol(input);
 	};
 	auto setrightnumcol =[&setnumcol](uint16_t input,std::uint8_t num_bits){
-		for(std::int16_t k=num_bits-1;k>=0;--k){
-		    if((1<<k)&input){
-		            std::cout<<"1"; 
-		    }else{
-		            std::cout<<"0"; 
-		    }
-		}
+		bool a;
+		printBits(input,num_bits);
 		std::cout<<std::endl;
 	};
 	setleftstringcol(h.front());
@@ -87,9 +96,9 @@ class Logger{
 	setrightstringcol(h.back());
 	setunderline(h.size());
 	for(std::size_t k=0;k<ehufsi.size();++k){
-	    setleftnumcol(1);
-	    setnumcol(++k);
-	    setrightnumcol(1,k);
+	    setleftnumcol(huffval[k]);
+	    setnumcol(ehufsi[huffval[k]]);
+	    setrightnumcol(ehufco[huffval[k]],ehufsi[k]);
         }
 
     }
