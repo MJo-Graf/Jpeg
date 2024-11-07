@@ -15,7 +15,7 @@ bool Huffman::validBitsAndHuffval(){
  */
 void Huffman::computeHuffsize(){
     huffsize_.clear();
-    std::size_t i{0},j{1};
+    std::size_t i{1},j{1};
     do{
         if(j>bits_[i-1]){
             ++i; j=1;
@@ -24,7 +24,7 @@ void Huffman::computeHuffsize(){
 	    ++j;
 	    continue;
 	}
-    }while(i<bits_.size());
+    }while(i<=bits_.size());
     huffsize_.emplace_back(0);
 }
 void Huffman::computeHuffcode(){

@@ -11,12 +11,12 @@
 
 
 // Type aliases
-using BITS = std::array<char,16>;
+using BITS = std::array<std::uint16_t,16>;
 using HUFFVAL = std::vector<std::uint16_t>;
 using HUFFSIZE = std::vector<std::uint16_t>;
 using HUFFCODE = std::vector<std::uint16_t>;
-using EHUFCO = std::map<char,std::uint16_t>;
-using EHUFSI = std::map<char,std::uint16_t>;
+using EHUFCO = std::map<std::uint16_t,std::uint16_t>;
+using EHUFSI = std::map<std::uint16_t,std::uint16_t>;
 
 // Concepts
 template<typename T>

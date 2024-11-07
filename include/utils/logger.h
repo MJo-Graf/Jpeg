@@ -10,7 +10,6 @@
 
 template<Numeric T>
 void printBits(T bits,std::size_t num_bits){
-	//std::cout <<"bits="<<bits<<" num_bits="<<num_bits<<std::endl;
     for(std::int16_t k=num_bits-1;k>=0;--k){
         if((1<<k)&bits){
 	    std::cout<<"1";
@@ -47,7 +46,7 @@ class Logger{
 	        s.append(" ");
 	    }
 	};
-	std::array<std::string,3>h{"Category","Code length","Code word"};
+	std::array<std::string,3>h{"Symbol (hex)","Code length","Code word"};
 	for(auto&it:h){
 	    adapt_stringsize(it);
 	}
@@ -80,12 +79,17 @@ class Logger{
 		std::cout<<std::setw(padding)<<"";
 		std::cout<<std::right<<"|";
 	};
-	auto setleftnumcol =[&setnumcol](auto&&input){
+	auto setleftnumcol =[](auto&&input){
 		std::cout<<"|";
-		setnumcol(input);
+		const auto padding = (cw-2)/2;
+		std::cout<<std::setw(padding)<<"";
+		std::cout<<std::hex<<std::setfill('0');
+		std::cout<<std::setw(2)<<input;
+		std::cout<<std::dec<<std::setfill(' ');
+		std::cout<<std::setw(padding)<<"";
+		std::cout<<std::right<<"|";
 	};
 	auto setrightnumcol =[&setnumcol](uint16_t input,std::uint8_t num_bits){
-		bool a;
 		printBits(input,num_bits);
 		std::cout<<std::endl;
 	};
@@ -98,7 +102,7 @@ class Logger{
 	for(std::size_t k=0;k<ehufsi.size();++k){
 	    setleftnumcol(huffval[k]);
 	    setnumcol(ehufsi[huffval[k]]);
-	    setrightnumcol(ehufco[huffval[k]],ehufsi[k]);
+	    setrightnumcol(ehufco[huffval[k]],ehufsi[huffval[k]]);
         }
 
     }
