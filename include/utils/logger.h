@@ -41,6 +41,7 @@ class Logger{
     }
 
     void logHuffmanTable(EHUFSI&&ehufsi,EHUFCO&&ehufco,HUFFVAL&huffval){
+	    std::cout <<"hufco.size="<<ehufco.size()<< " ehufsi.size()="<<ehufsi.size()<<std::endl;
 	auto adapt_stringsize=[](std::string&s){
 	    if((s.size()%2)!=0){
 	        s.append(" ");

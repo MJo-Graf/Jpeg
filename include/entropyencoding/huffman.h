@@ -2,7 +2,25 @@
 #define HUFFMAN_H
 #include"utils/utils.h"
 
-class Huffman {
+/**
+ * @brief Get Diff magnitude category corresponding to DC difference value.
+ * This implementation corresponds to https://www.w3.org/Graphics/JPEG/itu-t81.pdf
+ * table F.1.
+ * @param[in] diff Difference magnitude value.
+ * return difference category.
+ */
+constexpr signed_type getDcDiffMagnCat(const signed_type diff);
+/**
+ * @brief Get Coeffients magnitude category corresponding to AC coefficient value.
+ * This implementation corresponds to https://www.w3.org/Graphics/JPEG/itu-t81.pdf
+ * table F.2.
+ * @param[in] coeff Coefficient magnitude value.
+ * return Coefficient category.
+ */
+constexpr signed_type getAcCoeffMagnCat(const signed_type coeff);
+
+template<typename T>
+class HuffmanBase {
     public:
     
     void setBits(BITS bits){
@@ -26,14 +44,23 @@ class Huffman {
         return ehufco_;
     }
 
+    EHUFSI getXhufsi() const{
+        return xhufsi_;
+    }
+    EHUFCO getXhufco() const{
+        return xhufco_;
+    }
+
     bool validBitsAndHuffval();
 
     void computeHuffsize();
     void computeHuffcode();
-
     void reorder();
 
-    private:
+
+
+    protected:
+    void extendTableInterface();
 
     
     BITS bits_;
@@ -44,5 +71,17 @@ class Huffman {
 
     EHUFCO ehufco_;
     EHUFSI ehufsi_;
+
+    XHUFCO xhufco_;
+    XHUFSI xhufsi_;
+};
+
+class HuffmanDc : public HuffmanBase<HuffmanDc>{
+    public:
+    void extendTable();
+};
+class HuffmanAc : public HuffmanBase<HuffmanAc>{
+    public:
+    void extendTable();
 };
 #endif
