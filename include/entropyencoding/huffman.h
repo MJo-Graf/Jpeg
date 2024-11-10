@@ -94,8 +94,4 @@ class HuffmanAc : public HuffmanBase<HuffmanAc>{
     void extendTable();
 };
 
-struct HuffmanCompTable{
-    HuffmanDc dc_;
-    HuffmanAc ac_;
-};
 #endif

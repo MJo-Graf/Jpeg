@@ -1,6 +1,7 @@
 #ifndef UTILS_H
 #define UTILS_H
 #include<array>
+#include<variant>
 #include <cstdint>
 #include <type_traits>
 #include <algorithm>
@@ -11,7 +12,7 @@
 #include<cstring>
 #include<map>
 
-using unsigned_type = std::uint32_t;
+using unsigned_type = std::uint8_t;
 using signed_type = std::int32_t;
 using quantization_type = std::uint8_t;
 // Type aliases

@@ -103,21 +103,40 @@ void JpegEncoder::appendBits(const T bits,std::size_t size){
 
 void JpegEncoder::writeData(GroupedImage&gimage){
     // Write SOI
-    std::uint16_t a=0xFFDC;
-    appendBytes(a);
-    appendBits(0b1010,5);
-    appendBits(0b010,3);
-    //writeHuffmanTables();
+    writeStartOfImage();
+    //appendBytes(a);
+    writeHuffmanTables();
     //writeQuantizationTables();
     //writeFrameHeader();
     //writeScans();
     // Encode raw jpeg
     //EntropyEncoding(std::move(gimage));
+
 }
 
-void JpegEncoder::writeHuffmanTables(){
+void JpegEncoder::writeStartOfImage(){
+    jpeg_raw_.clear();
+    appendBytes(static_cast<std::uint16_t>(0xFFD8));
 }
-void JpegEncoder::writeHuffmanTable(){
+void JpegEncoder::writeHuffmanTables(){
+    appendBytes(jpeg_meta_data_.hth_.DHT);
+    appendBytes(jpeg_meta_data_.hth_.Lh);
+    for(auto&it:jpeg_meta_data_.hth_.htables_){
+        appendBytes(it.dc_TcTh);
+	for(auto inner_it:it.ptr_huffman_table_->dc_.getBits()){
+	    appendBytes(inner_it);
+	}
+	for(auto inner_it:it.ptr_huffman_table_->dc_.getHuffval()){
+	    appendBytes(inner_it);
+	}
+        appendBytes(it.ac_TcTh);
+	for(auto inner_it:it.ptr_huffman_table_->ac_.getBits()){
+	    appendBytes(inner_it);
+	}
+	for(auto inner_it:it.ptr_huffman_table_->ac_.getHuffval()){
+	    appendBytes(inner_it);
+	}
+    }
 }
 void JpegEncoder::writeQuantizationTables(){
 }
@@ -145,7 +164,7 @@ void JpegEncoder::computeHuffmanTable(RawImage&raw){
 	//TODO: implement, meanwhile, take the predefined values from https://www.w3.org/Graphics/JPEG/itu-t81.pdf
 	BITS bits{0x0,0x1,0x5,0x1,0x1,0x1,0x1,0x1,0x1,0x0,0x0,0x0,0x0,0x0,0x0,0x0};
         HUFFVAL huffval{0x0,0x1,0x2,0x3,0x4,0x5,0x6,0x7,0x8,0x9,0xA,0xB};
-	huffman_tables_.resize(2);
+	huffman_tables_.resize(1);
 	huffman_tables_[0].dc_.setBits(bits);
 	huffman_tables_[0].dc_.setHuffval(huffval);
 
@@ -241,18 +260,20 @@ GroupedImage JpegEncoder::createGroupedImageFromRaw(RawImage&raw){
 
     // HUffman tables
     computeHuffmanTable(raw);
-    jpeg_meta_data_.hth_.clear();
+    std::size_t n =huffman_tables_.size();
+    std::size_t num_vals=0;
+    for(auto it=huffman_tables_.cbegin();it!=huffman_tables_.end();++it){
+	num_vals+= it->dc_.getHuffval().size();	
+	num_vals+= it->ac_.getHuffval().size();	
+    }
     for(std::size_t k=0;k<huffman_tables_.size();++k){
-        HTable htabledc;
-	htabledc.DHT = 0xFFC4;
-	htabledc.TcTh = (((k%2)&0x0F)<<4)|((2*k)&0x0F);
-	jpeg_meta_data_.hth_.emplace_back(htabledc);
-
-        HTable htableac;
-	htableac.DHT = 0xFFC4;
-	htableac.TcTh = (((k%2)&0x0F)<<4)|((2*k+1)&0x0F);
-	htableac.ptr_huffman_table_ = &huffman_tables_[k];
-	jpeg_meta_data_.hth_.emplace_back(htableac);
+	jpeg_meta_data_.hth_.DHT = 0xFFC4;
+	jpeg_meta_data_.hth_.Lh =2+n*17+num_vals;
+	HTableHeader::HTable htable;
+	htable.dc_TcTh = (((k%2)&0x0F)<<4)|((2*k)&0x0F);
+	htable.ac_TcTh = (((k%2)&0x0F)<<4)|((2*k+1)&0x0F);
+	htable.ptr_huffman_table_ = &huffman_tables_[k];
+	jpeg_meta_data_.hth_.htables_.emplace_back(htable);
     }
     // Quantization tables
     jpeg_meta_data_.qth_.clear();

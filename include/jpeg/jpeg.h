@@ -51,6 +51,11 @@ constexpr data_unit_type QCHR ={
 	{99,99,99,99,99,99,99,99}
 };
 
+struct HuffmanCompTable{
+   HuffmanDc dc_;
+   HuffmanAc ac_;
+};
+
 enum class Component:std::uint8_t{
     Y = 0,
     Cb = 1,
@@ -142,21 +147,26 @@ struct GroupedImage{
 	const data_unit_type*ptr_quantization_table_;
     };
   //TODO: Make template param a concept. 
-    struct HTable{
+    struct HTableHeader{
 	///\brief Start of huffman table marker
         std::uint16_t DHT;
-    	/// Huffman table definition length
-    	unsigned_type Lh;
-    	/// Table class 
-	std::uint8_t TcTh;
-	/// Pointer to huffman tables
-	HuffmanCompTable* ptr_huffman_table_;
+    	/// Huffman table definition length 
+	std::uint16_t Lh;
+	struct HTable{
+    	    /// Table class (for dc table)
+	    std::uint8_t dc_TcTh;
+    	    /// Table class (for ac table)
+	    std::uint8_t ac_TcTh;
+	    /// Pointer to huffman tables (TODO: weak_ptr?)
+	    HuffmanCompTable*ptr_huffman_table_;
+	};
+        std::vector<HTable> htables_;
     };
     struct JpegMetaData{
         FrameHeader fh_;
         std::vector<ScanHeader> sh_; //TODO: Perhaps, there are multiple scan headers...
         std::vector<QTableHeader> qth_; //Quantization tables
-        std::vector<HTable> hth_; //Huffman tables
+        HTableHeader hth_; //Huffman tables
 			      //
     };
 
@@ -188,8 +198,8 @@ class JpegEncoder{
     void appendBits(const T bits,std::size_t size);
 
     void writeData(GroupedImage&gimage);
+    void writeStartOfImage();
     void writeHuffmanTables();
-    void writeHuffmanTable();
     void writeQuantizationTables();
     void writeQuantizationTable();
     void writeFrameHeader();
@@ -201,7 +211,6 @@ class JpegEncoder{
 
     void computeHuffmanTable(RawImage&raw);
 
-    //void fillMetaData(JpegRaw&jpeg_image);
 
     GroupedImage createGroupedImageFromRaw(RawImage&raw);
 
