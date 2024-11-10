@@ -1,12 +1,10 @@
 #include "clitools/huffman_cli.h"
-#include <cctype>
 #include <cstring>
 #include <fstream>
 #include <sstream>
 #include <stdlib.h>
 #include <string>
 #include"utils/logger.h"
-#include"jpeg/jpeg.h"
 
 void usage(){
 }
@@ -85,16 +83,16 @@ HUFFVAL createHuffval(std::string f){
 int main(int argc,char*argv[]){
     BITS bits; 
     HUFFVAL huffval(0);
-    bool bits_file_provided;
-    bool huffval_file_provided;
+    //bool bits_file_provided;
+    //bool huffval_file_provided;
     int c{0};
     while((c=getopt(argc,argv,"hb:i:"))!=-1){
 	switch(c){
 	    case 'b':
-		bits = createBits(optarg);
+		//bits = createBits(optarg);
 		break;
 	    case 'i':
-		huffval = createHuffval(optarg);
+		//huffval = createHuffval(optarg);
 		break;
 	    case 'h':
 		usage();
@@ -102,20 +100,11 @@ int main(int argc,char*argv[]){
 	}
     }
 
+    RawImage raw;
     JpegEncoder jpeg_enc;
-    jpeg_enc.getHuffmanDcLum().setBits(bits);
-    jpeg_enc.getHuffmanDcLum().setHuffval(huffval);
-    if(!jpeg_enc.getHuffmanDcLum().validBitsAndHuffval()){
-	std::cerr<<"Bits and Huffval are not set consistenly"<<std::endl;
-	return EXIT_FAILURE;
-    }
-    jpeg_enc.getHuffmanDcLum().computeHuffsize();
-    jpeg_enc.getHuffmanDcLum().computeHuffcode();
-    jpeg_enc.getHuffmanDcLum().reorder();
-    jpeg_enc.getHuffmanDcLum().extendTable();
+    auto jpeg_image = jpeg_enc.Encode(raw);
     Logger logger;
-    logger.logHuffmanTable(jpeg_enc.getHuffmanDcLum().getXhufsi(),jpeg_enc.getHuffmanDcLum().getXhufco(),huffval);
+    logger.logRawVector(jpeg_image);
 
 
-    JpegEncoder jpeg_encoder;
 }

@@ -1,7 +1,7 @@
 #include"entropyencoding/huffman.h"
 
 
-constexpr signed_type getDcDiffMagnCat(const signed_type diff){
+const signed_type getDcDiffMagnCat(const signed_type diff){
     signed_type result{0};
     if(diff==0){
 	result=0;
@@ -34,7 +34,7 @@ constexpr signed_type getDcDiffMagnCat(const signed_type diff){
 }
 
 
-constexpr signed_type getAcCoeffMagnCat(const signed_type coeff){
+const signed_type getAcCoeffMagnCat(const signed_type coeff){
     signed_type result{0};
     if(-1<= coeff && coeff <= 1){
 	result=1;
@@ -120,6 +120,11 @@ void HuffmanBase<T>::reorder(){
         ehufco_.emplace(std::make_pair(i,huffcode_[k]));
         ehufsi_.emplace(std::make_pair(i,huffsize_[k]));
     }
+}
+
+template<typename T>
+std::size_t HuffmanBase<T>::getNumHuffvals(){
+    return huffval_.size();
 }
 
 template<typename T>

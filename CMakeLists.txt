@@ -11,6 +11,7 @@ string(TOLOWER ${PROJECT_NAME} LIBRARY_NAME)
 add_library(${LIBRARY_NAME} SHARED)
 target_include_directories(${LIBRARY_NAME} PUBLIC ${INC_DIR})
 target_sources(${LIBRARY_NAME} PRIVATE
+	${SRC_DIR}/jpeg/jpeg.cpp
 	${SRC_DIR}/colorspaceconversion/colorspace_conversion.cpp
 	${SRC_DIR}/entropyencoding/huffman.cpp
 	${SRC_DIR}/payloadextraction/payload_extraction.cpp)
@@ -23,3 +24,5 @@ target_sources(huffman_cli PRIVATE
 	      ${SRC_DIR}/clitools/huffman_cli.cpp)
 target_link_libraries(huffman_cli PRIVATE ${LIBRARY_NAME})
 set_property(TARGET huffman_cli PROPERTY CXX_STANDARD 20)
+
+set(CMAKE_BUILD_TYPE Debug)

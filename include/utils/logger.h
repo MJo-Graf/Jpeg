@@ -1,6 +1,7 @@
 #ifndef LOGGER_H
 #define LOGGER_H
 #include"utils/utils.h"
+#include <cstdint>
 #include<iostream>
 #include<iomanip>
 #include <type_traits>
@@ -106,6 +107,16 @@ class Logger{
 	    setrightnumcol(ehufco[huffval[k]],ehufsi[huffval[k]]);
         }
 
+    }
+    void logRawVector(const std::vector<std::uint8_t> vec){
+        std::cout<<std::setfill('0');
+         for(const auto it:vec){
+                 std::cout<<std::hex;
+		 std::cout<<std::setw(2)<<static_cast<std::uint16_t>(it);
+		 std::cout<<" ";
+         }
+         std::cout<<std::setfill(' ');
+         std::cout<<std::endl;
     }
     
     private:

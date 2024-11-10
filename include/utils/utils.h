@@ -13,7 +13,7 @@
 
 using unsigned_type = std::uint32_t;
 using signed_type = std::int32_t;
-
+using quantization_type = std::uint8_t;
 // Type aliases
 using BITS = std::array<unsigned_type,16>;
 using HUFFVAL = std::vector<unsigned_type>;
