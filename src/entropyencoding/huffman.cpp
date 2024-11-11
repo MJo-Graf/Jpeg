@@ -136,8 +136,8 @@ void HuffmanDc::extendTable(){
     for(std::size_t k=0;k<huffval_.size();++k){
         std::size_t i=huffval_[k];
 	const auto SSSS = getDcDiffMagnCat(i);
-        auto xcode = (ehufco_[i]<<SSSS)|i;
-	auto xsize = ehufsi_[i] + SSSS;
+        auto xcode = (ehufco_[SSSS]<<SSSS)|i;
+	auto xsize = ehufsi_[SSSS] + SSSS;
         xhufco_.emplace(std::make_pair(i,xcode));
         xhufsi_.emplace(std::make_pair(i,xsize));
     }

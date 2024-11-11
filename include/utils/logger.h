@@ -41,8 +41,10 @@ class Logger{
         log(args...);
     }
 
-    void logHuffmanTable(EHUFSI&&ehufsi,EHUFCO&&ehufco,HUFFVAL&huffval){
-	    std::cout <<"hufco.size="<<ehufco.size()<< " ehufsi.size()="<<ehufsi.size()<<std::endl;
+    void logHuffmanTable(EHUFSI&&ehufsi,EHUFCO&&ehufco,HUFFVAL&&huffval){
+    //for(auto it : huffval){
+    //    std::cout <<"huffval="<< static_cast<int>(it)<<std::endl;
+    //}
 	auto adapt_stringsize=[](std::string&s){
 	    if((s.size()%2)!=0){
 	        s.append(" ");
@@ -77,7 +79,7 @@ class Logger{
 	auto setnumcol =[&cw](auto&&input){
 		const auto padding = (cw-2)/2;
 		std::cout<<std::setw(padding)<<"";
-		std::cout<<std::setw(2)<<input;
+		std::cout<<std::setw(2)<<static_cast<int>(input);
 		std::cout<<std::setw(padding)<<"";
 		std::cout<<std::right<<"|";
 	};
@@ -86,7 +88,7 @@ class Logger{
 		const auto padding = (cw-2)/2;
 		std::cout<<std::setw(padding)<<"";
 		std::cout<<std::hex<<std::setfill('0');
-		std::cout<<std::setw(2)<<input;
+		std::cout<<std::setw(2)<<static_cast<int>(input);
 		std::cout<<std::dec<<std::setfill(' ');
 		std::cout<<std::setw(padding)<<"";
 		std::cout<<std::right<<"|";

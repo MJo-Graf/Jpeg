@@ -38,18 +38,32 @@ void JpegEncoder::Encode(DataUnit&data_unit){
 	//DC
 	auto xhufco_dc_lum_ = xhufcotbl_dc_lum[arr[0]];
 	auto xhufsi_dc_lum_ = xhufsitbl_dc_lum[arr[0]];
+	for(std::size_t k=0;k<xhufsitbl_dc_lum.size();++k){
+		//std::cout <<"code sizes: "<<static_cast<int>(xhufsitbl_dc_lum[arr[k]])   <<std::endl;
+	}
+	//std::cout <<"writing "<<static_cast<int>(xhufsi_dc_lum_) <<" dc bits. Size of huffcide = " <<xhufcotbl_dc_lum.size()<< " size of size=" <<xhufsitbl_dc_lum.size()<<std::endl;
 	appendBits(xhufco_dc_lum_,xhufsi_dc_lum_);
 	//AC
-	auto xhufsitbl_ac_lum = huffman_tables_[1].dc_.getXhufsi();
-	auto xhufcotbl_ac_lum = huffman_tables_[1].dc_.getXhufco();
+	auto xhufsitbl_ac_lum = huffman_tables_[0].ac_.getXhufsi();
+	auto xhufcotbl_ac_lum = huffman_tables_[0].ac_.getXhufco();
+
+for(std::size_t k=0;k< huffman_tables_[0].ac_.getHuffval().size();++k){
+     auto hv=huffman_tables_[0].ac_.getHuffval()[k];
+     auto size=huffman_tables_[0].ac_.getXhufsi()[hv];
+     auto code=huffman_tables_[0].ac_.getXhufco()[hv];
+    std::cout << "Huffval="  << static_cast<int>(hv)<< "size= " <<   static_cast<int>(size)<<" code="<<static_cast<int>(code)<<std::endl;
+}
+
 	char RRRR{0};
 	for(auto it=std::next(arr.begin());it!=arr.end();++it){
 	    auto tmp=std::find_if(it,arr.end(),[](auto n){
-			    return n!=0;});
+	        return n!=0;});
 	    if(tmp==arr.end()){
 		char RRRRSSSS= 0b00000000;
-	        auto xhufco_ac_lum_ = xhufcotbl_dc_lum[RRRRSSSS];
-	        auto xhufsi_ac_lum_ = xhufsitbl_dc_lum[RRRRSSSS];
+	        auto xhufco_ac_lum_ = xhufcotbl_ac_lum[RRRRSSSS];
+	        auto xhufsi_ac_lum_ = xhufsitbl_ac_lum[RRRRSSSS];
+		std::cout <<"APPENDING EOB, size="<<static_cast<int>(xhufsi_ac_lum_)<<std::endl;
+	//std::cout <<"writing "<<static_cast<int>(xhufsi_ac_lum_) <<" ac bits" <<std::endl;
 	        appendBits(xhufco_ac_lum_,xhufsi_ac_lum_);
 	    }
 	    if((*it)==0){
@@ -60,8 +74,9 @@ void JpegEncoder::Encode(DataUnit&data_unit){
 	    }
             const auto SSSS= getAcCoeffMagnCat(*it);
 	    char RRRRSSSS = (RRRR<<4)|SSSS;
-	    auto xhufco_ac_lum_ = xhufcotbl_dc_lum[RRRRSSSS];
-	    auto xhufsi_ac_lum_ = xhufsitbl_dc_lum[RRRRSSSS];
+	    auto xhufco_ac_lum_ = xhufcotbl_ac_lum[RRRRSSSS];
+	    auto xhufsi_ac_lum_ = xhufsitbl_ac_lum[RRRRSSSS];
+	//std::cout <<"writing "<<static_cast<int>(xhufsi_ac_lum_) <<" ac bits" <<std::endl;
 	    appendBits(xhufco_ac_lum_,xhufsi_ac_lum_);
 	    RRRR=0;
 	}
@@ -88,8 +103,8 @@ void JpegEncoder::appendBytes(T bytes){
 
 template<typename T>
 void JpegEncoder::appendBits(const T bits,std::size_t size){
+	//std::cout <<"appending bits: " <<static_cast<int>(bits)<<std::endl;
     while(jpeg_raw_.size()*8-num_bits_written_<size){
-	    std::cout <<"k"<<std::endl;
         jpeg_raw_.emplace_back(0);
     }
     for(std::size_t k=1;k<=size;++k,++num_bits_written_){
@@ -97,20 +112,20 @@ void JpegEncoder::appendBits(const T bits,std::size_t size){
         std::size_t index=(num_bits_written_-bit_offs)/8;
         if((1<<(size-k))&bits){
 	    jpeg_raw_[index] |= (0b10000000>>bit_offs);
+	    std::cout <<"1";
+	}else{
+	    std::cout <<"0";
 	}
     }
 }
 
 void JpegEncoder::writeData(GroupedImage&gimage){
-    // Write SOI
     writeStartOfImage();
-    //appendBytes(a);
     writeHuffmanTables();
-    //writeQuantizationTables();
-    //writeFrameHeader();
-    //writeScans();
-    // Encode raw jpeg
-    //EntropyEncoding(std::move(gimage));
+    writeQuantizationTables();
+    writeFrameHeader();
+    writeScans(gimage);
+    writeEndOfImage();
 
 }
 
@@ -138,22 +153,62 @@ void JpegEncoder::writeHuffmanTables(){
 	}
     }
 }
+void JpegEncoder::writeEndOfImage(){
+    appendBytes(static_cast<std::uint16_t>(0xFFD9));
+}
 void JpegEncoder::writeQuantizationTables(){
+    appendBytes(jpeg_meta_data_.qth_.DQT);
+    appendBytes(jpeg_meta_data_.qth_.Lq);
+    for(auto&it:jpeg_meta_data_.qth_.qtables_){
+        appendBytes(it.PqTq);
+	for(std::size_t i=0;i<du_vert_size;++i){
+	    for(std::size_t j=0;j<du_hor_size;++j){
+		//    std::cout <<"APPENDING BYTES "<<static_cast<int>(*it.ptr_quantization_table_[i][j])<<std::endl;
+	        appendBytes((*it.ptr_quantization_table_)[i][j]);
+		//    std::cout <<"APPENDING BYTES "<<static_cast<int>(QLUM[i][j])<<std::endl;
+	        //appendBytes(QLUM[i][j]);
+//		    std::cout <<"DONE... "<<std::endl;
+	    }
+	}
+    }
+		
 }
 void JpegEncoder::writeQuantizationTable(){
 }
 void JpegEncoder::writeFrameHeader(){
-
+    appendBytes(jpeg_meta_data_.fh_.SOF);
+    appendBytes(jpeg_meta_data_.fh_.Lf);
+    appendBytes(jpeg_meta_data_.fh_.P);
+    appendBytes(jpeg_meta_data_.fh_.Y);
+    appendBytes(jpeg_meta_data_.fh_.X);
+    appendBytes(jpeg_meta_data_.fh_.Nf);
+    for(std::size_t k=0;k<jpeg_meta_data_.fh_.Nf;++k){
+        appendBytes(jpeg_meta_data_.fh_.Ci[k]);
+        appendBytes(jpeg_meta_data_.fh_.HV[k]);
+        appendBytes(jpeg_meta_data_.fh_.Tq[k]);
+    }
 }
-void JpegEncoder::writeScans(){
-
+void JpegEncoder::writeScans(GroupedImage&gimage){
+    appendBytes(static_cast<std::uint16_t>(0xFFDA));
+    for(auto &it:jpeg_meta_data_.sh_){
+        appendBytes(it.Ls);
+        appendBytes(it.Ns);
+	for(std::size_t k=0;k<it.Ns;++k){
+	    appendBytes(it.Cs[k]);
+	    appendBytes(it.Tda[k]);
+	}
+	appendBytes(it.Ss);
+	appendBytes(it.Se);
+	appendBytes(it.AhAl);
+        EntropyEncoding(gimage);
+    }
 }
 void JpegEncoder::writeScanHeader(){
 
 }
 
 
-void JpegEncoder::EntropyEncoding(GroupedImage&&gimage){
+void JpegEncoder::EntropyEncoding(GroupedImage&gimage){
     for(auto du:gimage.data_){
         Encode(du);
     }
@@ -167,7 +222,10 @@ void JpegEncoder::computeHuffmanTable(RawImage&raw){
 	huffman_tables_.resize(1);
 	huffman_tables_[0].dc_.setBits(bits);
 	huffman_tables_[0].dc_.setHuffval(huffval);
-
+        huffman_tables_[0].dc_.computeHuffsize();
+        huffman_tables_[0].dc_.computeHuffcode();
+        huffman_tables_[0].dc_.reorder();
+        huffman_tables_[0].dc_.extendTable();
 	bits=BITS{0x00,0x02,0x01,0x03,0x03,0x02,0x04,0x03,0x05,0x05,0x04,0x04,0x00,0x00,0x01,0x7D};
         huffval =HUFFVAL{0x01,0x02,0x03,0x00,0x04,0x11,0x05,0x12,0x21,0x31,0x41,0x06,0x13,0x51,0x61,0x07,\
                          0x22,0x71,0x14,0x32,0x81,0x91,0xA1,0x08,0x23,0x42,0xB1,0xC1,0x15,0x52,0xD1,0xF0,\
@@ -182,6 +240,10 @@ void JpegEncoder::computeHuffmanTable(RawImage&raw){
                          0xF9,0xFA};
 	huffman_tables_[0].ac_.setBits(bits);
 	huffman_tables_[0].ac_.setHuffval(huffval);
+        huffman_tables_[0].ac_.computeHuffsize();
+        huffman_tables_[0].ac_.computeHuffcode();
+        huffman_tables_[0].ac_.reorder();
+        huffman_tables_[0].ac_.extendTable();
 }
 
 
@@ -260,7 +322,7 @@ GroupedImage JpegEncoder::createGroupedImageFromRaw(RawImage&raw){
 
     // HUffman tables
     computeHuffmanTable(raw);
-    std::size_t n =huffman_tables_.size();
+    std::size_t n =huffman_tables_.size()*2;
     std::size_t num_vals=0;
     for(auto it=huffman_tables_.cbegin();it!=huffman_tables_.end();++it){
 	num_vals+= it->dc_.getHuffval().size();	
@@ -270,17 +332,23 @@ GroupedImage JpegEncoder::createGroupedImageFromRaw(RawImage&raw){
 	jpeg_meta_data_.hth_.DHT = 0xFFC4;
 	jpeg_meta_data_.hth_.Lh =2+n*17+num_vals;
 	HTableHeader::HTable htable;
-	htable.dc_TcTh = (((k%2)&0x0F)<<4)|((2*k)&0x0F);
-	htable.ac_TcTh = (((k%2)&0x0F)<<4)|((2*k+1)&0x0F);
+	htable.dc_TcTh = ((2*k)&0x0F);
+	htable.ac_TcTh = (1<<4)|((2*k+1)&0x0F);
 	htable.ptr_huffman_table_ = &huffman_tables_[k];
 	jpeg_meta_data_.hth_.htables_.emplace_back(htable);
     }
     // Quantization tables
-    jpeg_meta_data_.qth_.clear();
-    QTableHeader qtablelum;
-    qtablelum.DQT = 0xFFDB;
+    jpeg_meta_data_.qth_.DQT = 0xFFDB;
+    jpeg_meta_data_.qth_.Lq = 2*65+2;
+    QTableHeader::QTable qtablelum;
     qtablelum.PqTq = 0x00;
-    qtablelum.Lq = 2 + 65; 
     qtablelum.ptr_quantization_table_ = &QLUM;
+    jpeg_meta_data_.qth_.qtables_.emplace_back(qtablelum);
+
+    QTableHeader::QTable qtablechr;
+    qtablechr.PqTq = 0x01;
+    qtablechr.ptr_quantization_table_ = &QCHR;
+    jpeg_meta_data_.qth_.qtables_.emplace_back(qtablechr);
+    
     return gimage;
 }

@@ -81,8 +81,8 @@ HUFFVAL createHuffval(std::string f){
 
 
 int main(int argc,char*argv[]){
-    BITS bits; 
-    HUFFVAL huffval(0);
+    //BITS bits; 
+    //HUFFVAL huffval(0);
     //bool bits_file_provided;
     //bool huffval_file_provided;
     int c{0};
@@ -106,5 +106,21 @@ int main(int argc,char*argv[]){
     Logger logger;
     logger.logRawVector(jpeg_image);
 
+    logger.logHuffmanTable(jpeg_enc.getHuffmanAcLum().getEhufsi(),jpeg_enc.getHuffmanAcLum().getEhufco(),jpeg_enc.getHuffmanAcLum().getHuffval());
+
+    //HuffmanDc hdc;
+    //BITS bits1{0x0,0x1,0x5,0x1,0x1,0x1,0x1,0x1,0x1,0x0,0x0,0x0,0x0,0x0,0x0,0x0};
+    //HUFFVAL huffval1{0x0,0x1,0x2,0x3,0x4,0x5,0x6,0x7,0x8,0x9,0xA,0xB};
+    //hdc.setBits(bits1);
+    //hdc.setHuffval(huffval1);
+    //hdc.computeHuffsize();
+    //hdc.computeHuffcode();
+    //hdc.reorder();
+    //hdc.extendTable();
+    //auto hv=hdc.getHuffval();
+    //logger.logHuffmanTable(hdc.getEhufsi(),hdc.getEhufco(),hdc.getHuffval());
+
+
+    //logger.logHuffmanTable(jpeg_enc.getHuffmanDcLum().getEhufsi(),jpeg_enc.getHuffmanDcLum().getEhufco(),jpeg_enc.getHuffmanDcLum().getHuffval());
 
 }

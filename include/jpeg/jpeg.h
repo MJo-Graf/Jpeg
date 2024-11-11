@@ -141,10 +141,13 @@ struct GroupedImage{
 	std::uint16_t DQT;
     	/// Quantization table definition length
     	std::uint16_t Lq;
-    	/// Quantization table element precision 
-    	unsigned_type PqTq;
-    	/// Quantization table element 
-	const data_unit_type*ptr_quantization_table_;
+	    struct QTable{
+    	    /// Quantization table element precision 
+    	    unsigned_type PqTq;
+    	    /// Quantization table element 
+	    const data_unit_type*ptr_quantization_table_;
+	};
+	    std::vector<QTable> qtables_;
     };
   //TODO: Make template param a concept. 
     struct HTableHeader{
@@ -165,7 +168,7 @@ struct GroupedImage{
     struct JpegMetaData{
         FrameHeader fh_;
         std::vector<ScanHeader> sh_; //TODO: Perhaps, there are multiple scan headers...
-        std::vector<QTableHeader> qth_; //Quantization tables
+        QTableHeader qth_; //Quantization tables
         HTableHeader hth_; //Huffman tables
 			      //
     };
@@ -199,14 +202,16 @@ class JpegEncoder{
 
     void writeData(GroupedImage&gimage);
     void writeStartOfImage();
+    void writeEndOfImage();
+    void writeFrameHeader();
     void writeHuffmanTables();
     void writeQuantizationTables();
     void writeQuantizationTable();
-    void writeFrameHeader();
-    void writeScans();
+
+    void writeScans(GroupedImage&gimage);
     void writeScanHeader();
 
-    void EntropyEncoding(GroupedImage&&gimage);
+    void EntropyEncoding(GroupedImage&gimage);
 
 
     void computeHuffmanTable(RawImage&raw);
