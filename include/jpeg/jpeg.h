@@ -193,6 +193,7 @@ class JpegEncoder{
     JpegRaw Encode(RawImage&raw);
 
     void Encode(DataUnit& data_unit);
+    void Encode(std::size_t R,std::int32_t ZZ_K,EHUFSI&,EHUFCO&);
 
     template<typename T>
     void appendBytes(const T bytes);

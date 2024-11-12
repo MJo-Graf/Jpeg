@@ -106,7 +106,10 @@ int main(int argc,char*argv[]){
     Logger logger;
     logger.logRawVector(jpeg_image);
 
-    logger.logHuffmanTable(jpeg_enc.getHuffmanAcLum().getEhufsi(),jpeg_enc.getHuffmanAcLum().getEhufco(),jpeg_enc.getHuffmanAcLum().getHuffval());
+
+	//logger.logHuffmanTable(jpeg_enc.getHuffmanAcLum().getEhufsi(),jpeg_enc.getHuffmanAcLum().getEhufco(),jpeg_enc.getHuffmanAcLum().getHuffval());
+
+//    logger.logHuffmanTable(jpeg_enc.getHuffmanAcLum().getEhufsi(),jpeg_enc.getHuffmanAcLum().getEhufco(),jpeg_enc.getHuffmanAcLum().getHuffval());
 
     //HuffmanDc hdc;
     //BITS bits1{0x0,0x1,0x5,0x1,0x1,0x1,0x1,0x1,0x1,0x0,0x0,0x0,0x0,0x0,0x0,0x0};
@@ -123,4 +126,6 @@ int main(int argc,char*argv[]){
 
     //logger.logHuffmanTable(jpeg_enc.getHuffmanDcLum().getEhufsi(),jpeg_enc.getHuffmanDcLum().getEhufco(),jpeg_enc.getHuffmanDcLum().getHuffval());
 
+    std::ofstream os{"my.jpeg"};
+    os.write((char*)jpeg_image.data(),jpeg_image.size());
 }

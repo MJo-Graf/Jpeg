@@ -68,8 +68,9 @@ class HuffmanBase {
 
 
 
+
     protected:
-    void extendTableInterface();
+    void createCodeTableInterface();
 
     
     BITS bits_;
@@ -86,12 +87,14 @@ class HuffmanBase {
 };
 
 class HuffmanDc : public HuffmanBase<HuffmanDc>{
-    public:
+    private:
     void extendTable();
+    public:
+    void createCodeTable();
 };
 class HuffmanAc : public HuffmanBase<HuffmanAc>{
     public:
-    void extendTable();
+    void createCodeTable();
 };
 
 #endif

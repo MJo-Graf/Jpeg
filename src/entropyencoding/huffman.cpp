@@ -128,23 +128,33 @@ std::size_t HuffmanBase<T>::getNumHuffvals(){
 }
 
 template<typename T>
-void HuffmanBase<T>::extendTableInterface(){
-    static_cast<T*>(this)->extendTable();
+void HuffmanBase<T>::createCodeTableInterface(){
+    static_cast<T*>(this)->createCodeTable();
 }
+
 
 void HuffmanDc::extendTable(){
     for(std::size_t k=0;k<huffval_.size();++k){
-        std::size_t i=huffval_[k];
-	const auto SSSS = getDcDiffMagnCat(i);
-        auto xcode = (ehufco_[SSSS]<<SSSS)|i;
+        std::size_t diff=huffval_[k];
+	const auto SSSS = getDcDiffMagnCat(diff);
+        auto xcode = (ehufco_[SSSS]<<SSSS)|(diff>=0?diff:(diff-1));
 	auto xsize = ehufsi_[SSSS] + SSSS;
-        xhufco_.emplace(std::make_pair(i,xcode));
-        xhufsi_.emplace(std::make_pair(i,xsize));
+        xhufco_.emplace(std::make_pair(diff,xcode));
+        xhufsi_.emplace(std::make_pair(diff,xsize));
     }
 }
-
-void HuffmanAc::extendTable(){
+void HuffmanDc::createCodeTable(){
+    computeHuffsize();
+    computeHuffcode();
+    reorder();
+    extendTable();
 }
+void HuffmanAc::createCodeTable(){
+    computeHuffsize();
+    computeHuffcode();
+    reorder();
+}
+
 
 template class HuffmanBase<HuffmanDc>;
 template class HuffmanBase<HuffmanAc>;
