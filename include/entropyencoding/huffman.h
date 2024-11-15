@@ -9,7 +9,7 @@
  * @param[in] diff Difference magnitude value.
  * return difference category.
  */
-const signed_type getDcDiffMagnCat(const signed_type diff);
+const code_size_type getDcDiffMagnCat(const block_element_type diff);
 /**
  * @brief Get Coeffients magnitude category corresponding to AC coefficient value.
  * This implementation corresponds to https://www.w3.org/Graphics/JPEG/itu-t81.pdf
@@ -17,7 +17,7 @@ const signed_type getDcDiffMagnCat(const signed_type diff);
  * @param[in] coeff Coefficient magnitude value.
  * return Coefficient category.
  */
-const signed_type getAcCoeffMagnCat(const signed_type coeff);
+const code_size_type getAcCoeffMagnCat(const block_element_type coeff);
 
 
 template<typename T>
@@ -51,10 +51,10 @@ class HuffmanBase {
         return ehufco_;
     }
 
-    EHUFSI getXhufsi() const{
+    XHUFSI getXhufsi() const{
         return xhufsi_;
     }
-    EHUFCO getXhufco() const{
+    XHUFCO getXhufco() const{
         return xhufco_;
     }
 

@@ -1,10 +1,8 @@
 #include"entropyencoding/huffman.h"
-#include <cstdint>
-#include<iostream>
 
 
-const signed_type getDcDiffMagnCat(const signed_type diff){
-    signed_type result{0};
+const code_size_type getDcDiffMagnCat(const block_element_type diff){
+	code_size_type result{0};
     if(diff==0){
 	result=0;
     }else if(-1<= diff && diff <= 1){
@@ -30,14 +28,14 @@ const signed_type getDcDiffMagnCat(const signed_type diff){
     }else if((-2047<=diff&&diff<=-1024)||(1024<=diff&&diff<=2047)){
 	result=11;
     }else{
-	result=-1;
+        //TODO: throw out of range exception
     }
     return result;
 }
 
 
-const signed_type getAcCoeffMagnCat(const signed_type coeff){
-    signed_type result{0};
+const code_size_type getAcCoeffMagnCat(const block_element_type coeff){
+	std::uint8_t result{0};
     if(-1<= coeff && coeff <= 1){
 	result=1;
     }else if((-3<=coeff&&coeff<=-2)||(2<=coeff&&coeff<=3)){
@@ -59,7 +57,7 @@ const signed_type getAcCoeffMagnCat(const signed_type coeff){
     }else if((-1023<=coeff&&coeff<=-512)||(512<=coeff&&coeff<=1023)){
 	result=10;
     }else{
-	result=-1;
+        //TODO: throw out of range exception
     }
     return result;
 }
@@ -138,14 +136,15 @@ void HuffmanBase<T>::createCodeTableInterface(){
 
 void HuffmanDc::extendTable(){
     //TODO:Define range of DIFF values. Set precision as compile time param.
-    for(std::int64_t diff=-127;diff<= 127; ++diff){
+    for(block_element_type diff=-127;diff<= 127; ++diff){
         //std::size_t diff=huffval_[k];
 	const auto SSSS = getDcDiffMagnCat(diff);
-        auto xcode = (ehufco_[SSSS]<<SSSS)|(diff>=0?diff:(diff-1));
-	auto xsize = ehufsi_[SSSS] + SSSS;
+        xcode_type xcode = (ehufco_[SSSS]<<SSSS);
+	// Append SSSS bits of diff or diff-1 resp.
+	xcode |= ((diff>=0?diff:(diff-1))&((1<<SSSS)-1));
+	const code_size_type xsize = ehufsi_[SSSS] + SSSS;
         xhufco_.emplace(std::make_pair(diff,xcode));
         xhufsi_.emplace(std::make_pair(diff,xsize));
-	std::cout <<"diff=" << diff<<"  xsize=" <<xsize<<std::endl;
     }
 }
 void HuffmanDc::createCodeTable(){

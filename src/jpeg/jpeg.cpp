@@ -1,7 +1,5 @@
 #include"jpeg/jpeg.h"
 #include <algorithm>
-#include <bit>
-#include <cstdint>
 #include <iostream>
 
 JpegEncoder::JpegEncoder():
@@ -29,7 +27,7 @@ JpegRaw JpegEncoder::Encode(RawImage&raw){
 //template<typename T>
 //class X;
 void JpegEncoder::Encode(DataUnit&data_unit){
-	std::array<std::size_t,du_size>arr;
+	std::array<block_element_type,du_size>arr;
 	for(std::size_t i=0;i<du_hor_size;++i){
 	    for(std::size_t j=0;j<du_vert_size;++j){
 	        arr[ZZ[i][j]] = data_unit(i,j);
@@ -58,7 +56,7 @@ void JpegEncoder::Encode(DataUnit&data_unit){
 	std::size_t K{0};
 	std::size_t R{0}; // run length of zeros.
 			  //
-	auto enc_R_ZZ_K = [this,&ehufsi,&ehufco,&R](unsigned_type ZZ_K){
+	auto enc_R_ZZ_K = [this,&ehufsi,&ehufco,&R](auto ZZ_K){
             std::size_t SSSS = getAcCoeffMagnCat(ZZ_K);
             std::size_t RS =  16*R+SSSS;
             appendBits(ehufco[RS],ehufsi[RS]);
@@ -261,16 +259,7 @@ GroupedImage JpegEncoder::createGroupedImageFromRaw(RawImage&raw){
     const std::size_t num_hor_data_units{1};
     const std::size_t num_ver_data_units{4};
     GroupedImage gimage(num_hor_data_units,num_ver_data_units);
-    gimage.data_.front()(0,0)=30;
-    //gimage.data_.front()(1,0)=0;
-    for(auto&it:gimage.data_){
-	    //it(0,0)=2;
-//        for(std::size_t i=0;i<8;++i){
-//	    for(std::size_t j=0;j<8;++j){
-//		    std::cout <<"data="<<it(i,j)<<std::endl;
-//	    }
-//        }
-    }
+    gimage.data_.front()(0,0)=00;
 
     //Frame Header
     jpeg_meta_data_.fh_.SOF = 0xFFC0;
