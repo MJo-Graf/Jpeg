@@ -26,18 +26,31 @@ JpegRaw JpegEncoder::Encode(RawImage&raw){
     return jpeg_raw_;
 }
 
+//template<typename T>
+//class X;
 void JpegEncoder::Encode(DataUnit&data_unit){
 	std::array<std::size_t,du_size>arr;
 	for(std::size_t i=0;i<du_hor_size;++i){
 	    for(std::size_t j=0;j<du_vert_size;++j){
 	        arr[ZZ[i][j]] = data_unit(i,j);
+		//std::cout <<"data("<<i<<","<<j<<")="<<static_cast<int>(data_unit(i,j))<<std::endl;
 	    }
 	}
+	for(auto it: arr){
+		std::cout << it <<" ";
+	}
+	std::cout<<std::endl;
 	//DC
 	auto xhufsitbl_dc_lum = huffman_tables_[0].dc_.getXhufsi();
 	auto xhufcotbl_dc_lum = huffman_tables_[0].dc_.getXhufco();
 	auto xhufco_dc_lum_ = xhufcotbl_dc_lum[arr[0]];
 	auto xhufsi_dc_lum_ = xhufsitbl_dc_lum[arr[0]];
+
+//	X<decltype(xhufsi_dc_lum_)>a;
+//	X<decltype(xhufsi_dc_lum_)>a;
+	std::cout <<"APPENDING DC BITS. HUFCO= "<<static_cast<int>(xhufco_dc_lum_)<<" xhufsi= " <<static_cast<int>(xhufsi_dc_lum_)<<" arr[0]="<< static_cast<int>(arr[0]) <<std::endl;
+
+	//appendBits(0,2);
 	appendBits(xhufco_dc_lum_,xhufsi_dc_lum_);
 	//AC
 	auto ehufsi = huffman_tables_[0].ac_.getEhufsi();
@@ -61,6 +74,7 @@ void JpegEncoder::Encode(DataUnit&data_unit){
 	    if(arr[K]==0){
 	        if(K==63){
 		    appendBits(ehufco[0],ehufsi[0]);
+		    std::cout <<"EOB= "<<static_cast<int>(ehufco[0])<<" NUMBITS="	<<static_cast<int>(ehufsi[0])<<std::endl;
 		    break;
 		}else{
 		    ++R;
@@ -75,6 +89,8 @@ void JpegEncoder::Encode(DataUnit&data_unit){
 		R=0;
 	    }
 	}while(K!=63);
+
+
 	
 }
 
@@ -110,6 +126,7 @@ void JpegEncoder::appendBits(const T bits,std::size_t size){
         std::size_t index=(num_bits_written_-bit_offs)/8;
         if((1<<(size-k))&bits){
 	    jpeg_raw_[index] |= (0b10000000>>bit_offs);
+	}else{
 	}
     }
 }
@@ -207,6 +224,10 @@ void JpegEncoder::EntropyEncoding(GroupedImage&gimage){
     for(auto du:gimage.data_){
         Encode(du);
     }
+    //padding of last byte
+    std::size_t num_bits_remaining = 8-(num_bits_written_%8);
+    appendBits(0b11111111,num_bits_remaining);
+    //appendBits(0b00000000,num_bits_remaining);
 }
 
 
@@ -237,13 +258,19 @@ void JpegEncoder::computeHuffmanTable(RawImage&raw){
 
 
 GroupedImage JpegEncoder::createGroupedImageFromRaw(RawImage&raw){
-    const std::size_t num_hor_data_units{144};
-    const std::size_t num_ver_data_units{144};
+    const std::size_t num_hor_data_units{1};
+    const std::size_t num_ver_data_units{4};
     GroupedImage gimage(num_hor_data_units,num_ver_data_units);
-    gimage.data_.front()(0,0)=255;
-    //for(auto&it:gimage.data_){
-    //    it(0,0)=1;
-    //}
+    gimage.data_.front()(0,0)=30;
+    //gimage.data_.front()(1,0)=0;
+    for(auto&it:gimage.data_){
+	    //it(0,0)=2;
+//        for(std::size_t i=0;i<8;++i){
+//	    for(std::size_t j=0;j<8;++j){
+//		    std::cout <<"data="<<it(i,j)<<std::endl;
+//	    }
+//        }
+    }
 
     //Frame Header
     jpeg_meta_data_.fh_.SOF = 0xFFC0;

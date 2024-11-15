@@ -104,7 +104,6 @@ int main(int argc,char*argv[]){
     JpegEncoder jpeg_enc;
     auto jpeg_image = jpeg_enc.Encode(raw);
     Logger logger;
-    logger.logRawVector(jpeg_image);
 
 
 	//logger.logHuffmanTable(jpeg_enc.getHuffmanAcLum().getEhufsi(),jpeg_enc.getHuffmanAcLum().getEhufco(),jpeg_enc.getHuffmanAcLum().getHuffval());
@@ -124,7 +123,9 @@ int main(int argc,char*argv[]){
     //logger.logHuffmanTable(hdc.getEhufsi(),hdc.getEhufco(),hdc.getHuffval());
 
 
-    //logger.logHuffmanTable(jpeg_enc.getHuffmanDcLum().getEhufsi(),jpeg_enc.getHuffmanDcLum().getEhufco(),jpeg_enc.getHuffmanDcLum().getHuffval());
+    logger.logHuffmanTable(jpeg_enc.getHuffmanDcLum().getEhufsi(),jpeg_enc.getHuffmanDcLum().getEhufco(),jpeg_enc.getHuffmanDcLum().getHuffval());
+    logger.logHuffmanTable(jpeg_enc.getHuffmanAcLum().getEhufsi(),jpeg_enc.getHuffmanAcLum().getEhufco(),jpeg_enc.getHuffmanAcLum().getHuffval());
+    logger.logRawVector(jpeg_image);
 
     std::ofstream os{"my.jpeg"};
     os.write((char*)jpeg_image.data(),jpeg_image.size());

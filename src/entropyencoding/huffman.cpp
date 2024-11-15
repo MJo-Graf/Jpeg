@@ -1,4 +1,6 @@
 #include"entropyencoding/huffman.h"
+#include <cstdint>
+#include<iostream>
 
 
 const signed_type getDcDiffMagnCat(const signed_type diff){
@@ -94,7 +96,8 @@ void HuffmanBase<T>::computeHuffsize(){
 template<typename T>
 void HuffmanBase<T>::computeHuffcode(){
     huffcode_.clear();    
-    std::size_t code{0}, si{huffsize_.front()};
+    code_type code{0};
+    std::size_t  si{huffsize_.front()};
 
     while(true){
         huffcode_.emplace_back(code++);
@@ -134,13 +137,15 @@ void HuffmanBase<T>::createCodeTableInterface(){
 
 
 void HuffmanDc::extendTable(){
-    for(std::size_t k=0;k<huffval_.size();++k){
-        std::size_t diff=huffval_[k];
+    //TODO:Define range of DIFF values. Set precision as compile time param.
+    for(std::int64_t diff=-127;diff<= 127; ++diff){
+        //std::size_t diff=huffval_[k];
 	const auto SSSS = getDcDiffMagnCat(diff);
         auto xcode = (ehufco_[SSSS]<<SSSS)|(diff>=0?diff:(diff-1));
 	auto xsize = ehufsi_[SSSS] + SSSS;
         xhufco_.emplace(std::make_pair(diff,xcode));
         xhufsi_.emplace(std::make_pair(diff,xsize));
+	std::cout <<"diff=" << diff<<"  xsize=" <<xsize<<std::endl;
     }
 }
 void HuffmanDc::createCodeTable(){

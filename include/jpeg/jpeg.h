@@ -57,9 +57,9 @@ struct HuffmanCompTable{
 };
 
 enum class Component:std::uint8_t{
-    Y = 0,
-    Cb = 1,
-    Cr = 2
+    Y = 1,
+    Cb = 2,
+    Cr = 3
 };
 
 enum class TableSelect:std::uint8_t{
