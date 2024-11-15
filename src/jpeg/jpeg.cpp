@@ -31,7 +31,7 @@ void JpegEncoder::Encode(DataUnit&data_unit){
 	for(std::size_t i=0;i<du_hor_size;++i){
 	    for(std::size_t j=0;j<du_vert_size;++j){
 	        arr[ZZ[i][j]] = data_unit(i,j);
-		//std::cout <<"data("<<i<<","<<j<<")="<<static_cast<int>(data_unit(i,j))<<std::endl;
+		std::cout <<"data("<<i<<","<<j<<")="<<static_cast<int>(data_unit(i,j))<<std::endl;
 	    }
 	}
 	for(auto it: arr){
@@ -59,6 +59,7 @@ void JpegEncoder::Encode(DataUnit&data_unit){
 	auto enc_R_ZZ_K = [this,&ehufsi,&ehufco,&R](auto ZZ_K){
             std::size_t SSSS = getAcCoeffMagnCat(ZZ_K);
             std::size_t RS =  16*R+SSSS;
+	    std::cout <<" appending RRRR="<<R<<" SSSS="<<SSSS<<std::endl;
             appendBits(ehufco[RS],ehufsi[RS]);
             if(ZZ_K<0){
                 --ZZ_K;
@@ -80,6 +81,7 @@ void JpegEncoder::Encode(DataUnit&data_unit){
 		}	
 	    }else{
 	        while(R>15){
+			std::cout <<"appending 0xF0 at K = " <<K<<std::endl;
 		    appendBits(ehufco[0xF0],ehufsi[0xF0]);
 		    R-=16;
 		}
@@ -119,14 +121,24 @@ void JpegEncoder::appendBits(const T bits,std::size_t size){
     while(jpeg_raw_.size()*8-num_bits_written_<size){
         jpeg_raw_.emplace_back(0);
     }
-    for(std::size_t k=1;k<=size;++k,++num_bits_written_){
+    for(std::size_t k=1;k<=size;++k){
         std::size_t bit_offs=num_bits_written_%8;
         std::size_t index=(num_bits_written_-bit_offs)/8;
         if((1<<(size-k))&bits){
 	    jpeg_raw_[index] |= (0b10000000>>bit_offs);
 	}else{
 	}
+	++num_bits_written_;
+
+	// Byte stuffing
+        if(num_bits_written_>=8 && (num_bits_written_%8==0)){
+            if(jpeg_raw_[index] ==0xFF){
+	        jpeg_raw_.emplace_back(0x00);
+		num_bits_written_+=8;
+	    }
+        }
     }
+
 }
 
 void JpegEncoder::writeData(GroupedImage&gimage){
@@ -260,6 +272,7 @@ GroupedImage JpegEncoder::createGroupedImageFromRaw(RawImage&raw){
     const std::size_t num_ver_data_units{4};
     GroupedImage gimage(num_hor_data_units,num_ver_data_units);
     gimage.data_.front()(0,0)=00;
+    gimage.data_[0](7,7)=30;
 
     //Frame Header
     jpeg_meta_data_.fh_.SOF = 0xFFC0;
